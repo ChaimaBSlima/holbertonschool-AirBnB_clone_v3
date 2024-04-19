@@ -1,118 +1,81 @@
 #!/usr/bin/python3
-"""
-Unit Test for State Class
-"""
+
+'''
+    All the test for the user model are implemented here.
+'''
+
 import unittest
-from datetime import datetime
-import models
-import json
-import os
+import pep8
+from models.base_model import BaseModel
+from models.review import Review
+from os import getenv, remove
 
-State = models.state.State
-BaseModel = models.base_model.BaseModel
-storage_type = os.environ.get("HBNB_TYPE_STORAGE")
+storage = getenv("HBNB_TYPE_STORAGE", "fs")
 
 
-class TestStateDocs(unittest.TestCase):
-    """Class for testing State docs"""
-
-    @classmethod
-    def setUpClass(cls):
-        print("\n\n.................................")
-        print("..... Testing Documentation .....")
-        print("........   State Class   ........")
-        print(".................................\n\n")
-
-    def test_doc_file(self):
-        """... documentation for the file"""
-        expected = " holds class State"
-        actual = models.state.__doc__
-        self.assertEqual(expected, actual)
-
-    def test_doc_class(self):
-        """... documentation for the class"""
-        expected = "Representation of state "
-        actual = State.__doc__
-        self.assertEqual(expected, actual)
-
-
-class TestStateInstances(unittest.TestCase):
-    """testing for class instances"""
+class TestReview(unittest.TestCase):
+    '''
+        Testing Review class
+    '''
 
     @classmethod
     def setUpClass(cls):
-        print("\n\n.................................")
-        print("....... Testing Functions .......")
-        print(".........  State Class  .........")
-        print(".................................\n\n")
+        '''
+            Sets up unittest
+        '''
+        cls.rev = Review()
+        cls.rev.user_id = "Adriel and Melissa 123"
+        cls.rev.place_id = "Amy and Victor's room at SF"
+        cls.rev.text = "Team Awesome includes Adekunle"
 
-    def setUp(self):
-        """initializes new state for testing"""
-        self.state = State()
-
-    def test_instantiation(self):
-        """... checks if State is properly instantiated"""
-        self.assertIsInstance(self.state, State)
-
-    @unittest.skipIf(storage_type == "db", "skip if environ is db")
-    def test_to_string(self):
-        """... checks if BaseModel is properly casted to string"""
-        my_str = str(self.state)
-        my_list = ["State", "id", "created_at"]
-        actual = 0
-        for sub_str in my_list:
-            if sub_str in my_str:
-                actual += 1
-        self.assertTrue(3 == actual)
-
-    @unittest.skipIf(storage_type == "db", "skip if environ is db")
-    def test_instantiation_no_updated(self):
-        """... should not have updated attribute"""
-        my_str = str(self.state)
-        actual = 0
-        if "updated_at" in my_str:
-            actual += 1
-        self.assertTrue(1 == actual)
-
-    @unittest.skipIf(storage_type == "db", "skip if environ is db")
-    def test_updated_at(self):
-        """... save function should add updated_at attribute"""
-        self.state.save()
-        actual = type(self.state.updated_at)
-        expected = type(datetime.now())
-        self.assertEqual(expected, actual)
-
-    @unittest.skipIf(storage_type == "db", "skip if environ is db")
-    def test_to_dict(self):
-        """... to_dict should return serializable dict object"""
-        self.state_json = self.state.to_dict()
-        actual = 1
+    @classmethod
+    def tearDownClass(cls):
+        '''
+            Tears down unittest
+        '''
+        del cls.rev
         try:
-            serialized = json.dumps(self.state_json)
-        except (ValueError, TypeError) as e:
-            actual = 0
-        self.assertTrue(1 == actual)
+            remove("file.json")
+        except FileNotFoundError:
+            pass
 
-    @unittest.skipIf(storage_type == "db", "skip if environ is db")
-    def test_json_class(self):
-        """... to_dict should include class key with value State"""
-        self.state_json = self.state.to_dict()
-        actual = None
-        if self.state_json["__class__"]:
-            actual = self.state_json["__class__"]
-        expected = "State"
-        self.assertEqual(expected, actual)
+    def test_pep8_style_check(self):
+        '''
+            Tests pep8 style
+        '''
+        style = pep8.StyleGuide(quiet=True)
+        p = style.check_files(['models/review.py'])
+        self.assertEqual(p.total_errors, 0, "pep8 error needs fixing")
 
-    def test_name_attribute(self):
-        """... add name attribute"""
-        self.state.name = "betty"
-        if hasattr(self.state, "name"):
-            actual = self.state.name
-        else:
-            acual = ""
-        expected = "betty"
-        self.assertEqual(expected, actual)
+    def test_Review_dbtable(self):
+        '''
+            Check if the tablename is correct
+        '''
+        self.assertEqual(self.rev.__tablename__, "reviews")
 
+    def test_Review_inheritance(self):
+        '''
+            Tests that the Review class Inherits from BaseModel
+        '''
+        self.assertIsInstance(self.rev, BaseModel)
 
-if __name__ == "__main__":
-    unittest.main
+    def test_Review_attributes(self):
+        '''
+            Tests Review class has place_id, user_id and text attributes
+        '''
+        self.assertTrue("place_id" in self.rev.__dir__())
+        self.assertTrue("user_id" in self.rev.__dir__())
+        self.assertTrue("text" in self.rev.__dir__())
+
+    @unittest.skipIf(storage == "db", "Testing database storage only")
+    def test_Review_attributes(self):
+        '''
+            Test that Review class has place_id, user_id and text
+            attributes.
+        '''
+        place_id = getattr(self.rev, "place_id")
+        user_id = getattr(self.rev, "user_id")
+        text = getattr(self.rev, "text")
+        self.assertIsInstance(place_id, str)
+        self.assertIsInstance(user_id, str)
+        self.assertIsInstance(text, str)
