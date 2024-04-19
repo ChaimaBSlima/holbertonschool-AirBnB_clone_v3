@@ -80,7 +80,5 @@ def view_user_id(id):
         for key, value in data.items():
             if key not in ["id", "email", "created_at", "updated_at"]:
                 setattr(user, key, value)
-        # This save is possibly not working to obtain
-        # permanent changes in the data base
         storage.save()
         return jsonify(user.to_dict())
