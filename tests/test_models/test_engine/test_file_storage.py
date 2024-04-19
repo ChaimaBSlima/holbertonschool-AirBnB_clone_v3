@@ -116,7 +116,11 @@ class TestFileStorage(unittest.TestCase):
 
     @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
     def test_db_get(self):
-        """Test the function get"""
+        """Test the function get, to get an object of a given class
+        and an id.
+        This creates an instance for each class and send the class
+        name and the id to the get method. It should return the same
+        object."""
         storage = FileStorage()
         instance = State(name='state_test')
         instance.save()
@@ -124,7 +128,9 @@ class TestFileStorage(unittest.TestCase):
 
     @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
     def test_db_count(self):
-        """Test the function count
+        """Test the function count, that returns the number of objects,
+        all the objects from a class if it's given, or all the objects
+        from all the classes
         """
         storage = FileStorage()
         initial_value = storage.count()
