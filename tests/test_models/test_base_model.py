@@ -24,31 +24,33 @@ class TestBaseModelDocs(unittest.TestCase):
 
     def test_doc_file(self):
         """... documentation for the file"""
-        expected = '\nBaseModel Class of Models Module\n'
+        expected = '\nContains class BaseModel\n'
         actual = models.base_model.__doc__
         self.assertEqual(expected, actual)
 
     def test_doc_init(self):
         """... documentation for init function"""
-        expected = 'instantiation of new BaseModel Class'
+        expected = 'Initialization of the base model'
         actual = BaseModel.__init__.__doc__
         self.assertEqual(expected, actual)
 
     def test_doc_save(self):
         """... documentation for save function"""
-        expected = 'updates attribute updated_at to current time'
+        expected = "updates the attribute \
+'updated_at' with the current datetime"
         actual = BaseModel.save.__doc__
         self.assertEqual(expected, actual)
 
-    def test_doc_to_json(self):
-        """... documentation for to_json function"""
-        expected = 'returns json representation of self'
-        actual = BaseModel.to_json.__doc__
+    def test_doc_to_dict(self):
+        """... documentation for to_dict function"""
+        expected = 'returns a dictionary \
+containing all keys/values of the instance'
+        actual = BaseModel.to_dict.__doc__
         self.assertEqual(expected, actual)
 
     def test_doc_str(self):
         """... documentation for to str function"""
-        expected = 'returns string type representation of object instance'
+        expected = 'String representation of the BaseModel class'
         actual = BaseModel.__str__.__doc__
         self.assertEqual(expected, actual)
 
@@ -100,7 +102,7 @@ class TestBaseModelInstances(unittest.TestCase):
         actual = 0
         if 'updated_at' in my_str:
             actual += 1
-        self.assertTrue(0 == actual)
+        self.assertTrue(1 == actual)
 
     @unittest.skipIf(storage_type == 'db', 'skip if environ is db')
     def test_save(self):
@@ -111,20 +113,20 @@ class TestBaseModelInstances(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     @unittest.skipIf(storage_type == 'db', 'skip if environ is db')
-    def test_to_json(self):
-        """... to_json should return serializable dict object"""
-        my_model_json = self.model.to_json()
+    def test_to_dict(self):
+        """... to_dict should return serializable dict object"""
+        my_model_json = self.model.to_dict()
         actual = 1
         try:
             serialized = json.dumps(my_model_json)
-        except:
+        except (ValueError, TypeError) as e:
             actual = 0
         self.assertTrue(1 == actual)
 
     @unittest.skipIf(storage_type == 'db', 'skip if environ is db')
     def test_json_class(self):
-        """... to_json should include class key with value BaseModel"""
-        my_model_json = self.model.to_json()
+        """... to_dict should include class key with value BaseModel"""
+        my_model_json = self.model.to_dict()
         actual = None
         if my_model_json['__class__']:
             actual = my_model_json['__class__']
@@ -143,6 +145,7 @@ class TestBaseModelInstances(unittest.TestCase):
         self.model.number = 98
         actual = self.model.number
         self.assertTrue(98 == actual)
+
 
 if __name__ == '__main__':
     unittest.main
